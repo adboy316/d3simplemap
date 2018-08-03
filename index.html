@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>A D3 map</title>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+  <script src='neighborhoods.js'></script>
+  <script src="farms.js"></script>
+</head>
+<body>
+  <script>
+// Variables for size of SVG
+var width = 700,
+    height = 580;
+
+// Create SVG element and append to body
+var svg = d3.select('body')
+  .append('svg')
+  .attr('width', width)
+  .attr('height', height);
+
+var g = svg.append('g');
+
+// Creates a function into which you can plug longitude and latitude values and get projected coordinates back
+// The Albers equal-area conic projection is a good choice, with standard parallels of 50°N and 60°N
+// Google coordinates of area, and place in .center and .rotate respectively
+// Mess with scale and translate until it wokrs
+var albersProjection = d3.geoAlbers()
+    .center([0, 52.4])
+    .rotate([-4.94, 0])
+    .parallels([50, 60])
+    .scale(12000)
+    .translate([width / 2, height / 2]);
+
+// Geo path function that takes a GeoJSON feature and returns SVG path data, based on the specified projection above.
+var geoPath = d3.geoPath()
+    .projection(albersProjection)
+    .pointRadius([1]);
+
+// Select data, bind data, append new elements
+// Apply some attributes. Our elements here are SVG paths, which are basically free-form shapes
+g.selectAll('path')
+  .data(neighborhoods_json.features)
+  .enter()
+  .append('path')
+  .attr('fill', '#ccc')
+  .attr('d', geoPath);
+
+// Repeat the above with farm data
+// Create  circle for each farm location
+var farms = svg.append('g');
+
+farms.selectAll('path')
+  .data(farms_json.features)
+  .enter()
+  .append('path')
+  .attr('fill', '#900')
+  .attr('stroke', '#999')
+  .attr('d', geoPath);
+
+  </script>
+</body>
+</html>
